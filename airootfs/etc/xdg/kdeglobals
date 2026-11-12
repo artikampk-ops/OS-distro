@@ -1,0 +1,13 @@
+[KDE]
+LookAndFeelPackage=org.eleven.desktop
+SingleClick=false
+
+[General]
+AccentColor=0,103,192
+font=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+menuFont=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+toolBarFont=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+smallestReadableFont=Inter,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+
+[WM]
+activeFont=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1

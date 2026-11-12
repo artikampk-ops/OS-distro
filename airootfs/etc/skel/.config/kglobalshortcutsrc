@@ -1,0 +1,46 @@
+[kwin]
+Window Maximize=Meta+Up,Meta+PgUp,Maximize Window
+Window Minimize=Meta+Down,Meta+PgDown,Minimize Window
+Window Quick Tile Top=none,Meta+Up,Quick Tile Window to the Top
+Window Quick Tile Bottom=none,Meta+Down,Quick Tile Window to the Bottom
+Window Quick Tile Left=Meta+Left,Meta+Left,Quick Tile Window to the Left
+Window Quick Tile Right=Meta+Right,Meta+Right,Quick Tile Window to the Right
+Window to Next Screen=Meta+Shift+Right,Meta+Shift+Right,Move Window to Next Screen
+Window to Previous Screen=Meta+Shift+Left,Meta+Shift+Left,Move Window to Previous Screen
+Window Close=Alt+F4,Alt+F4,Close Window
+Show Desktop=Meta+D,Meta+D,Peek at Desktop
+Overview=Meta+Tab\tMeta+W,Meta+W,Toggle Overview
+Walk Through Windows=Alt+Tab,Alt+Tab,Walk Through Windows
+Walk Through Windows (Reverse)=Alt+Shift+Tab,Alt+Shift+Tab,Walk Through Windows (Reverse)
+Switch One Desktop to the Left=Meta+Ctrl+Left,Meta+Ctrl+Left,Switch One Desktop to the Left
+Switch One Desktop to the Right=Meta+Ctrl+Right,Meta+Ctrl+Right,Switch One Desktop to the Right
+Window Fullscreen=F11,none,Make Window Fullscreen
+
+[plasmashell]
+activate application launcher=Meta\tCtrl+Esc\tAlt+F1,Meta\tAlt+F1,Activate Application Launcher
+manage activities=none,Meta+Q,Show Activity Switcher
+show-on-mouse-pos=Meta+V,Meta+V,Show Clipboard Items at Mouse Position
+show dashboard=none,Ctrl+F12,Show Desktop
+
+[ksmserver]
+Lock Session=Meta+L\tScreensaver,Meta+L\tScreensaver,Lock Session
+Log Out=Ctrl+Alt+Del,Ctrl+Alt+Del,Show Logout Screen
+
+[services][org.kde.krunner.desktop]
+_launch=Meta+R\tMeta+S\tAlt+Space\tAlt+F2\tSearch
+
+[services][org.kde.dolphin.desktop]
+_launch=Meta+E
+
+[services][systemsettings.desktop]
+_launch=Meta+I\tTools
+
+[services][org.kde.plasma-systemmonitor.desktop]
+_launch=Ctrl+Shift+Esc\tMeta+Esc
+
+[services][org.kde.spectacle.desktop]
+RectangularRegionScreenShot=Meta+Shift+S\tMeta+Shift+Print
+_launch=Print
+
+[services][org.kde.plasma.emojier.desktop]
+_launch=Meta+.\tMeta+;\tMeta+Ctrl+Alt+Shift+Space

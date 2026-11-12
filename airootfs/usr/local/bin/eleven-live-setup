@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Runs once at boot of the live medium only: makes the passwordless "live"
+# user the desktop logs in as and puts the installer on its desktop. None of
+# this is on the image the installer copies, so an installed system has no
+# such account.
+
+set -euo pipefail
+
+if ! id live &>/dev/null; then
+  useradd -m -G wheel -s /bin/bash live
+  passwd -d live >/dev/null
+fi
+
+echo "live ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/00-live
+chmod 440 /etc/sudoers.d/00-live
+
+cat >/etc/sddm.conf.d/20-live-autologin.conf <<'EOF'
+[Autologin]
+User=live
+Session=plasma
+EOF
+
+install -d -o live -g live /home/live/Desktop
+install -m 755 -o live -g live /usr/share/eleven/install.desktop /home/live/Desktop/install.desktop

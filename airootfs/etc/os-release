@@ -1,0 +1,8 @@
+NAME="Eleven"
+PRETTY_NAME="Eleven (Arch Linux)"
+ID=eleven
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;0;103;192"
+HOME_URL="https://archlinux.org/"
+LOGO=archlinux-logo

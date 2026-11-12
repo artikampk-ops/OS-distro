@@ -1,0 +1,165 @@
+#!/bin/bash
+
+# Installs Eleven from the live medium onto one whole disk.
+#
+# The installed system is a copy of the image the live session runs from, so
+# it is the same desktop, already configured. The disk is erased and gets an
+# EFI partition and one ext4 root. UEFI only.
+
+set -euo pipefail
+
+SOURCE=/run/archiso/airootfs
+TARGET=/mnt/eleven
+
+fail() {
+  echo
+  echo "Error: $1" >&2
+  read -rp "Press Enter to close." _
+  exit 1
+}
+
+trap 'fail "the install stopped at line $LINENO. Nothing further was changed."' ERR
+
+(( EUID == 0 )) || fail "run this as root: sudo eleven-install"
+[[ -d $SOURCE ]] || fail "this only runs from the Eleven live medium."
+[[ -d /sys/firmware/efi ]] || fail "this computer started in legacy BIOS mode. Start the medium in UEFI mode."
+
+clear
+echo "Install Eleven"
+echo "=============="
+echo
+
+# The medium itself is never offered as a target.
+medium=$(lsblk -no PKNAME "$(findmnt -no SOURCE /run/archiso/bootmnt)" 2>/dev/null | head -1 || true)
+mapfile -t disks < <(lsblk -dnpo NAME,TYPE | awk '$2 == "disk" { print $1 }' | grep -vx "/dev/${medium:-none}" || true)
+(( ${#disks[@]} > 0 )) || fail "no disk to install to was found."
+
+echo "Disks:"
+for index in "${!disks[@]}"; do
+  printf '  %d) %s\n' "$(( index + 1 ))" "$(lsblk -dno NAME,SIZE,MODEL "${disks[$index]}")"
+done
+echo
+
+choice=""
+until [[ $choice =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#disks[@]} )); do
+  read -rp "Install to which disk? [1-${#disks[@]}] " choice
+done
+disk=${disks[$(( choice - 1 ))]}
+
+username=""
+until [[ $username =~ ^[a-z][a-z0-9_-]{0,30}$ && $username != "root" ]]; do
+  read -rp "Username (lowercase letters and digits): " username
+done
+
+password=""
+confirm="-"
+until [[ -n $password && $password == "$confirm" ]]; do
+  read -rsp "Password: " password
+  echo
+  read -rsp "Password again: " confirm
+  echo
+  [[ $password == "$confirm" ]] || echo "The passwords do not match."
+done
+
+read -rp "Computer name [eleven]: " hostname
+[[ $hostname =~ ^[A-Za-z0-9][A-Za-z0-9-]{0,62}$ ]] || hostname=eleven
+
+echo
+echo "Everything on $disk will be erased:"
+lsblk -o NAME,SIZE,FSTYPE,LABEL "$disk"
+echo
+read -rp "Type YES to erase it and install: " answer
+[[ $answer == "YES" ]] || fail "cancelled. Nothing was changed."
+
+step() {
+  echo
+  echo "==> $1"
+}
+
+step "Partitioning $disk"
+umount -R "$TARGET" 2>/dev/null || true
+wipefs -af "$disk" >/dev/null
+sgdisk --zap-all "$disk" >/dev/null
+sgdisk -n 1:0:+1G -t 1:ef00 -c 1:EFI -n 2:0:0 -t 2:8304 -c 2:Eleven "$disk" >/dev/null
+partprobe "$disk"
+udevadm settle
+
+if [[ $disk =~ [0-9]$ ]]; then
+  efi_part=${disk}p1
+  root_part=${disk}p2
+else
+  efi_part=${disk}1
+  root_part=${disk}2
+fi
+
+mkfs.fat -F 32 -n EFI "$efi_part" >/dev/null
+mkfs.ext4 -qF -L Eleven "$root_part"
+
+mkdir -p "$TARGET"
+mount "$root_part" "$TARGET"
+mkdir -p "$TARGET/boot"
+mount -o umask=0077 "$efi_part" "$TARGET/boot"
+
+step "Copying the system (this takes a few minutes)"
+rsync -aHAX --info=progress2 --exclude=/boot/* "$SOURCE/" "$TARGET/"
+
+step "Removing what only the live medium needs"
+rm -rf "$TARGET/etc/systemd/system/getty@tty1.service.d" \
+  "$TARGET/etc/systemd/journald.conf.d" \
+  "$TARGET/etc/systemd/logind.conf.d" \
+  "$TARGET/etc/mkinitcpio.conf.d/archiso.conf" \
+  "$TARGET/etc/ssh/sshd_config.d/10-archiso.conf" \
+  "$TARGET/root/.zlogin" "$TARGET/root/.automated_script.sh" \
+  "$TARGET/etc/motd" \
+  "$TARGET/usr/local/bin/eleven-live-setup" \
+  "$TARGET/usr/share/eleven/install.desktop" \
+  "$TARGET/etc/systemd/system/eleven-live.service"
+find "$TARGET/etc/systemd/system" \( -name 'eleven-live.service' -o -name 'choose-mirror.service' \
+  -o -name 'pacman-init.service' -o -name 'livecd-*' -o -name 'etc-pacman.d-gnupg.mount' \) -delete
+sed -i 's/^Storage=volatile/#Storage=auto/' "$TARGET/etc/systemd/journald.conf" 2>/dev/null || true
+sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' "$TARGET/etc/pacman.conf"
+
+step "Setting up boot"
+genfstab -U "$TARGET" >"$TARGET/etc/fstab"
+cp "$TARGET"/usr/lib/modules/*/vmlinuz "$TARGET/boot/vmlinuz-linux"
+cat >"$TARGET/etc/mkinitcpio.d/linux.preset" <<'EOF'
+ALL_kver="/boot/vmlinuz-linux"
+PRESETS=('default')
+default_image="/boot/initramfs-linux.img"
+EOF
+rm -f "$TARGET/etc/machine-id"
+arch-chroot "$TARGET" systemd-machine-id-setup >/dev/null
+arch-chroot "$TARGET" mkinitcpio -P
+arch-chroot "$TARGET" bootctl install >/dev/null
+mkdir -p "$TARGET/boot/loader/entries"
+cat >"$TARGET/boot/loader/loader.conf" <<'EOF'
+default eleven.conf
+timeout 0
+editor no
+EOF
+cat >"$TARGET/boot/loader/entries/eleven.conf" <<EOF
+title   Eleven
+linux   /vmlinuz-linux
+initrd  /initramfs-linux.img
+options root=UUID=$(blkid -s UUID -o value "$root_part") rw quiet
+EOF
+
+step "Creating the account"
+echo "$hostname" >"$TARGET/etc/hostname"
+arch-chroot "$TARGET" useradd -m -G wheel -s /bin/bash "$username"
+printf '%s:%s\n' "$username" "$password" | arch-chroot "$TARGET" chpasswd
+# Root has no password and cannot log in; an administrator uses sudo.
+arch-chroot "$TARGET" passwd --lock root >/dev/null
+
+step "Preparing the package manager"
+arch-chroot "$TARGET" bash -c 'pacman-key --init && pacman-key --populate' &>/dev/null ||
+  echo "Could not set up the package keys. Run: sudo pacman-key --init && sudo pacman-key --populate"
+
+sync
+umount -R "$TARGET"
+trap - ERR
+
+echo
+echo "Eleven is installed. Remove the install medium and restart."
+read -rp "Press Enter to restart, or close this window to keep using the live session. " _
+systemctl reboot

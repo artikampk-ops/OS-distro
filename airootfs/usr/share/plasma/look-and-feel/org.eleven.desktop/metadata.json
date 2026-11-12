@@ -1,0 +1,13 @@
+{
+  "KPackageStructure": "Plasma/LookAndFeel",
+  "KPlugin": {
+    "Authors": [{ "Name": "Eleven" }],
+    "Category": "",
+    "Description": "A taskbar along the bottom with Start and pinned apps in the middle",
+    "Id": "org.eleven.desktop",
+    "License": "MIT",
+    "Name": "Eleven",
+    "Version": "1.0"
+  },
+  "X-Plasma-APIVersion": "2"
+}

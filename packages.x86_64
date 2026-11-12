@@ -1,0 +1,67 @@
+# Added on top of Arch's releng package list. One package per line.
+
+# Desktop
+plasma-desktop
+plasma-workspace
+kwin
+sddm
+systemsettings
+kscreenlocker
+polkit-kde-agent
+plasma-nm
+plasma-pa
+bluedevil
+powerdevil
+kscreen
+kdeplasma-addons
+plasma-systemmonitor
+breeze
+breeze-gtk
+kde-gtk-config
+xdg-desktop-portal-kde
+xdg-user-dirs
+xorg-xwayland
+
+# Graphics, sound, network
+mesa
+vulkan-radeon
+vulkan-intel
+pipewire
+pipewire-pulse
+pipewire-alsa
+wireplumber
+networkmanager
+bluez
+bluez-utils
+
+# Fonts
+inter-font
+noto-fonts
+noto-fonts-emoji
+
+# The few apps every desktop needs
+dolphin
+konsole
+kate
+ark
+spectacle
+gwenview
+okular
+firefox
+
+# App store, for Linux apps from Flathub
+discover
+flatpak
+
+# Windows programs run through Proton
+umu-launcher
+
+# Installer
+rsync
+gptfdisk
+dosfstools
+e2fsprogs
+efibootmgr
+arch-install-scripts
+sudo
+kdialog

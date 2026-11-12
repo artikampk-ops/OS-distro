@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Install Eleven
+Comment=Install Eleven on this computer
+Exec=konsole --hide-menubar -e sudo eleven-install
+Icon=system-software-install
+Terminal=false

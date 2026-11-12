@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Runs a Windows program (.exe or .msi) through Proton. Every program shares
+# one Windows environment in the user's home, so what one installer puts there
+# the next program finds. Proton itself is downloaded the first time.
+
+program=${1:-}
+
+if [[ -z $program ]]; then
+  kdialog --title "Windows Program" --error "Open a Windows program (.exe or .msi) to run it."
+  exit 1
+fi
+
+if ! command -v umu-run >/dev/null; then
+  kdialog --title "Windows Program" --error "Windows support is not installed. Install the umu-launcher package."
+  exit 1
+fi
+
+export WINEPREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/eleven/windows"
+export PROTONPATH=GE-Proton
+export GAMEID=0
+mkdir -p "$WINEPREFIX"
+
+if [[ ! -d ${XDG_DATA_HOME:-$HOME/.local/share}/Steam/compatibilitytools.d ]]; then
+  kdialog --title "Windows Program" --passivepopup "Setting up Windows support. The first start downloads Proton and takes a few minutes." 15 &
+fi
+
+if [[ ${program,,} == *.msi ]]; then
+  exec umu-run msiexec /i "$@"
+else
+  exec umu-run "$@"
+fi

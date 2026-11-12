@@ -1,0 +1,5 @@
+[Default Applications]
+application/x-ms-dos-executable=eleven-run-windows.desktop
+application/x-msdownload=eleven-run-windows.desktop
+application/vnd.microsoft.portable-executable=eleven-run-windows.desktop
+application/x-msi=eleven-run-windows.desktop

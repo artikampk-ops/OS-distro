@@ -1,0 +1,73 @@
+name: Build ISO
+
+# Builds the ISO on every push to main, or by hand from the Actions tab, and
+# publishes it as a release. GitHub caps a release file at 2 GB, so a larger
+# ISO is published in parts; the release notes say how to join them.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["README.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-iso
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    container:
+      image: archlinux:latest
+      options: --privileged -v /:/host
+    steps:
+      - name: Make room on the runner
+        run: |
+          rm -rf /host/usr/share/dotnet /host/usr/local/lib/android /host/opt/ghc /host/opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: Install build tools
+        run: pacman -Syu --noconfirm --needed archiso git rsync github-cli
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build
+        shell: bash
+        run: |
+          set -o pipefail
+          bash ./build.sh 2>&1 | tee build.log
+
+      # Job logs need a login to read; an annotation does not.
+      - name: Report the end of the log
+        if: failure()
+        shell: bash
+        run: |
+          message=$(tail -n 40 build.log 2>/dev/null | sed 's/%/%25/g' | awk '{ printf "%s%%0A", $0 }')
+          echo "::error title=ISO build failed::$message"
+
+      - name: Publish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd out
+          iso=$(ls *.iso)
+          sha256sum "$iso" | tee "$iso.sha256"
+          notes="Built from $GITHUB_SHA."
+          files=("$iso" "$iso.sha256")
+          if (( $(stat -c %s "$iso") > 2000000000 )); then
+            split -b 1900M -d "$iso" "$iso.part"
+            files=("$iso".part* "$iso.sha256")
+            notes+=$'\n\n'"The ISO is larger than GitHub allows for one file. Download every part, then join them:"
+            notes+=$'\n\n'"Linux or macOS: \`cat $iso.part* > $iso\`"
+            notes+=$'\n\n'"Windows (Command Prompt): \`copy /b $iso.part00 + $iso.part01 $iso\`"
+          fi
+          gh release create "build-$GITHUB_RUN_NUMBER" "${files[@]}" \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Eleven build $GITHUB_RUN_NUMBER" --notes "$notes"
