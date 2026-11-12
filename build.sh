@@ -52,6 +52,10 @@ ln -sf /usr/lib/systemd/system/NetworkManager.service "$units/multi-user.target.
 ln -sf /usr/lib/systemd/system/bluetooth.service "$units/multi-user.target.wants/bluetooth.service"
 ln -sf /etc/systemd/system/eleven-live.service "$units/multi-user.target.wants/eleven-live.service"
 
+# The boot menu names the system it starts.
+grep -rl "Arch Linux install medium" "$profile/efiboot" "$profile/syslinux" "$profile/grub" 2>/dev/null |
+  xargs -r sed -i 's/Arch Linux install medium/Eleven/g'
+
 sed -i \
   -e 's/^iso_name=.*/iso_name="eleven"/' \
   -e 's/^iso_label=.*/iso_label="ELEVEN_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"/' \
