@@ -2,7 +2,7 @@
 
 # Runs a Windows program (.exe or .msi) through Proton. Every program shares
 # one Windows environment in the user's home, so what one installer puts there
-# the next program finds. Proton itself is downloaded the first time.
+# the next program finds. Proton and its launcher are downloaded the first time.
 
 program=${1:-}
 
@@ -11,22 +11,29 @@ if [[ -z $program ]]; then
   exit 1
 fi
 
-if ! command -v umu-run >/dev/null; then
-  kdialog --title "Windows Program" --error "Windows support is not installed. Install the umu-launcher package."
-  exit 1
+data=${XDG_DATA_HOME:-$HOME/.local/share}/eleven
+umu=$data/umu/umu-run
+
+# Arch does not package the launcher, so its own release is fetched once.
+if [[ ! -x $umu ]]; then
+  kdialog --title "Windows Program" --passivepopup "Setting up Windows support. The first start downloads Proton and takes a few minutes." 15 &
+  mkdir -p "$data/umu"
+  url=$(curl -fsSL https://api.github.com/repos/Open-Wine-Components/umu-launcher/releases/latest |
+    grep -o 'https://[^"]*zipapp[^"]*\.tar' | head -1)
+  if [[ -z $url ]] || ! curl -fsSL "$url" | tar -x -C "$data/umu" --strip-components=1 || [[ ! -f $umu ]]; then
+    kdialog --title "Windows Program" --error "Could not download Windows support. Check the network and try again."
+    exit 1
+  fi
+  chmod +x "$umu"
 fi
 
-export WINEPREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/eleven/windows"
+export WINEPREFIX="$data/windows"
 export PROTONPATH=GE-Proton
 export GAMEID=0
 mkdir -p "$WINEPREFIX"
 
-if [[ ! -d ${XDG_DATA_HOME:-$HOME/.local/share}/Steam/compatibilitytools.d ]]; then
-  kdialog --title "Windows Program" --passivepopup "Setting up Windows support. The first start downloads Proton and takes a few minutes." 15 &
-fi
-
 if [[ ${program,,} == *.msi ]]; then
-  exec umu-run msiexec /i "$@"
+  exec "$umu" msiexec /i "$@"
 else
-  exec umu-run "$@"
+  exec "$umu" "$@"
 fi

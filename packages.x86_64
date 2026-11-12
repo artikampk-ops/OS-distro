@@ -53,8 +53,9 @@ firefox
 discover
 flatpak
 
-# Windows programs run through Proton
-umu-launcher
+# Windows programs run through Proton, which its launcher fetches on first use
+python
+bubblewrap
 
 # Installer
 rsync

@@ -42,7 +42,7 @@ cp -a "$here/airootfs/." "$profile/airootfs/"
 # The desktop uses NetworkManager, so the console image's network daemons
 # stand down. Nothing listens for SSH on a desktop either.
 find "$profile/airootfs/etc/systemd/system" \
-  \( -name 'systemd-networkd*' -o -name 'iwd.service' -o -name 'sshd.service' \) -delete
+  \( -name 'systemd-networkd*' -o -name 'iwd.service' -o -name 'sshd.service' \) -prune -exec rm -rf {} +
 
 units=$profile/airootfs/etc/systemd/system
 mkdir -p "$units/multi-user.target.wants"
