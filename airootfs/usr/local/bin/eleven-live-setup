@@ -23,3 +23,8 @@ EOF
 
 install -d -o live -g live /home/live/Desktop
 install -m 755 -o live -g live /usr/share/eleven/install.desktop /home/live/Desktop/install.desktop
+
+# A live session with no password has nothing to lock.
+install -d -o live -g live /home/live/.config
+printf '[Daemon]\nAutolock=false\nLockOnResume=false\n' >/home/live/.config/kscreenlockerrc
+chown live:live /home/live/.config/kscreenlockerrc
