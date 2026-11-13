@@ -133,5 +133,13 @@ file_permissions+=(
 )
 EOF
 
-mkarchiso -v -w "$work/build" -o "$out" "$profile"
+# A mirror dropping one download fails the whole build, so it gets three tries.
+for attempt in 1 2 3; do
+  rm -rf "$work/build"
+  if mkarchiso -v -w "$work/build" -o "$out" "$profile"; then
+    break
+  fi
+  [[ $attempt -lt 3 ]] || exit 1
+  echo "::warning::mkarchiso failed, trying again"
+done
 ls -lh "$out"
