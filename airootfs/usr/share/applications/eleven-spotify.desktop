@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Spotify
+Comment=Listen to music
+Exec=brave --app=https://open.spotify.com/
+Icon=/usr/share/eleven/icons/spotify.svg
+Terminal=false
+Categories=Network;
+StartupWMClass=brave-open.spotify.com__-Default

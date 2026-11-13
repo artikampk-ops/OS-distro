@@ -1,4 +1,9 @@
 [Default Applications]
+x-scheme-handler/http=brave-browser.desktop
+x-scheme-handler/https=brave-browser.desktop
+text/html=brave-browser.desktop
+application/xhtml+xml=brave-browser.desktop
+text/plain=org.kde.kwrite.desktop
 application/x-ms-dos-executable=eleven-run-windows.desktop
 application/x-msdownload=eleven-run-windows.desktop
 application/vnd.microsoft.portable-executable=eleven-run-windows.desktop

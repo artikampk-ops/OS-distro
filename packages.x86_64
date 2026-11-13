@@ -39,15 +39,16 @@ inter-font
 noto-fonts
 noto-fonts-emoji
 
-# The few apps every desktop needs
+# The few apps every desktop needs. Brave, PhotoCraft and the Artika apps are
+# not in Arch's repositories; build.sh packages those itself.
+discord
 dolphin
 konsole
-kate
+kwrite
 ark
 spectacle
 gwenview
 okular
-firefox
 
 # App store, for Linux apps from Flathub
 discover

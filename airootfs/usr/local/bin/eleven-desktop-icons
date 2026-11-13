@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Puts the built-in apps on a new user's desktop the first time they log in.
+# It runs once per user, so an icon the user deletes stays deleted.
+
+done_marker=${XDG_CONFIG_HOME:-$HOME/.config}/eleven-desktop-icons
+[[ ! -e $done_marker ]] || exit 0
+
+desktop=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")
+mkdir -p "$desktop"
+
+shopt -s nullglob
+for entry in \
+  /usr/share/applications/org.kde.dolphin.desktop \
+  /usr/share/applications/brave-browser.desktop \
+  /usr/share/applications/artika-browser.desktop \
+  /usr/share/applications/artika-communication.desktop \
+  /usr/share/applications/*photocraft*.desktop \
+  /usr/local/share/applications/org.kde.kwrite.desktop \
+  /usr/share/applications/discord.desktop \
+  /usr/share/applications/eleven-chatgpt.desktop \
+  /usr/share/applications/eleven-canva.desktop \
+  /usr/share/applications/eleven-youtube.desktop \
+  /usr/share/applications/eleven-youtube-music.desktop \
+  /usr/share/applications/eleven-spotify.desktop \
+  /usr/share/applications/eleven-watermark.desktop; do
+  # Plasma only starts a desktop icon without asking when it is executable.
+  [[ ! -f $entry ]] || install -m 755 "$entry" "$desktop/"
+done
+
+mkdir -p "$(dirname "$done_marker")"
+touch "$done_marker"

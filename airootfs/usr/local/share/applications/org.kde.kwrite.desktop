@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Notepad
+Comment=Edit text files
+Exec=kwrite %U
+Icon=accessories-text-editor
+Terminal=false
+Categories=Utility;TextEditor;
+MimeType=text/plain;
+StartupWMClass=org.kde.kwrite

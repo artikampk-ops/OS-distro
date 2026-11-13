@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=ChatGPT
+Comment=Chat with ChatGPT
+Exec=brave --app=https://chatgpt.com/
+Icon=/usr/share/eleven/icons/chatgpt.svg
+Terminal=false
+Categories=Network;
+StartupWMClass=brave-chatgpt.com__-Default

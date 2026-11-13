@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=YouTube Music
+Comment=Listen to music
+Exec=brave --app=https://music.youtube.com/
+Icon=/usr/share/eleven/icons/youtube-music.svg
+Terminal=false
+Categories=Network;
+StartupWMClass=brave-music.youtube.com__-Default

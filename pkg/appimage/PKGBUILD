@@ -1,0 +1,50 @@
+# Turns an AppImage into an ordinary package: unpacked under /opt, with its own
+# menu entry and icon. build.sh sets APP_ID, APP_VERSION, APP_TITLE and
+# APP_FILE and runs makepkg once per app.
+
+pkgname=$APP_ID
+pkgver=$APP_VERSION
+pkgrel=1
+pkgdesc=$APP_TITLE
+arch=(x86_64)
+license=(custom)
+depends=(gtk3 nss alsa-lib libxss)
+options=(!strip !debug)
+
+package() {
+  cd "$srcdir"
+  cp "$APP_FILE" app.AppImage
+  chmod +x app.AppImage
+  ./app.AppImage --appimage-extract >/dev/null
+
+  install -d "$pkgdir/opt"
+  cp -a squashfs-root "$pkgdir/opt/$pkgname"
+  chmod -R a+rX "$pkgdir/opt/$pkgname"
+
+  # Chromium's sandbox helper only works setuid root.
+  local helper=$pkgdir/opt/$pkgname/chrome-sandbox
+  [[ ! -f $helper ]] || chmod 4755 "$helper"
+
+  local entry icon candidate
+  entry=$(find squashfs-root -maxdepth 1 -name '*.desktop' | head -1)
+  icon=$(sed -n 's/^Icon=//p' "$entry" | head -1)
+
+  for candidate in \
+    "squashfs-root/usr/share/icons/hicolor/512x512/apps/$icon.png" \
+    "squashfs-root/usr/share/icons/hicolor/256x256/apps/$icon.png" \
+    "squashfs-root/$icon.png" \
+    squashfs-root/.DirIcon; do
+    if [[ -f $candidate ]]; then
+      install -Dm644 "$candidate" "$pkgdir/usr/share/pixmaps/$pkgname.png"
+      break
+    fi
+  done
+
+  sed \
+    -e "s|^Exec=[^ ]*|Exec=/opt/$pkgname/AppRun|" \
+    -e "s|^Icon=.*|Icon=$pkgname|" \
+    -e "s|^Name=.*|Name=$APP_TITLE|" \
+    -e '/^TryExec=/d' \
+    -e '/^X-AppImage/d' \
+    "$entry" | install -Dm644 /dev/stdin "$pkgdir/usr/share/applications/$pkgname.desktop"
+}

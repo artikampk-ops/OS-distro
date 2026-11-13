@@ -31,13 +31,15 @@ jobs:
           df -h /
 
       - name: Install build tools
-        run: pacman -Syu --noconfirm --needed archiso git rsync github-cli
+        run: pacman -Syu --noconfirm --needed archiso base-devel git rsync github-cli
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -o pipefail

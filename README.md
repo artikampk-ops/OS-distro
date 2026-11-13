@@ -5,7 +5,8 @@ Arch Linux with a Windows 11 style desktop: a taskbar along the bottom with Star
 ## What is in this repository
 
 - `build.sh` builds the ISO. It takes Arch's own `releng` install image and lays this repository over it.
-- `packages.x86_64` lists the packages added to Arch's image: the KDE Plasma desktop, a handful of apps, the app store, and Proton's launcher.
+- `packages.x86_64` lists the packages added to Arch's image: the KDE Plasma desktop, a handful of apps, and the app store.
+- `pkg/` and `apps/` hold what is needed to package the apps Arch does not carry.
 - `airootfs/` holds the files added to the system: the desktop layout, the shortcuts, and the installer.
 - `.github/workflows/build-iso.yml` builds the ISO on every push to `main` and publishes it under Releases.
 
@@ -16,7 +17,7 @@ Download the newest ISO from the repository's Releases page. If it comes in part
 To build it yourself on Arch Linux:
 
 ```bash
-sudo pacman -S archiso
+sudo pacman -S archiso base-devel git
 sudo ./build.sh
 ```
 
@@ -53,6 +54,22 @@ Write the ISO to a USB stick and start the computer from it in UEFI mode. It sta
 The root account is locked. The user created during install is an administrator and uses `sudo`.
 
 ## Apps
+
+These come installed, each with an icon on the desktop:
+
+| App | What it is |
+| --- | --- |
+| File manager | Dolphin |
+| Brave | The default web browser |
+| Artika Browser, Artika Communication | Packaged from their AppImages |
+| PhotoCraft | Photo editor |
+| Notepad | KWrite, under the name Notepad |
+| Discord | The Discord app |
+| ChatGPT, Canva, YouTube, YouTube Music, Spotify, Watermark | Each site in its own window, through Brave |
+
+Brave, PhotoCraft and the Artika apps are not in Arch's repositories, so a system update does not update them; a newer ISO carries newer versions.
+
+Beyond those:
 
 - **Discover** is the app store. It installs Linux apps from Flathub.
 - Opening a `.exe` or `.msi` runs it through Proton. The first start downloads Proton, which takes a few minutes.

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Canva
+Comment=Design anything
+Exec=brave --app=https://www.canva.com/
+Icon=/usr/share/eleven/icons/canva.svg
+Terminal=false
+Categories=Network;
+StartupWMClass=brave-www.canva.com__-Default

@@ -3,6 +3,7 @@ LookAndFeelPackage=org.eleven.desktop
 SingleClick=false
 
 [General]
+BrowserApplication=brave-browser.desktop
 AccentColor=0,103,192
 font=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 menuFont=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1

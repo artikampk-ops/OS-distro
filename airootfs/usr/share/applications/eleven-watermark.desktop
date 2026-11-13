@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Watermark
+Comment=Add a watermark to photos and videos
+Exec=brave --app=https://watermark.ws/
+Icon=/usr/share/eleven/icons/watermark.svg
+Terminal=false
+Categories=Network;
+StartupWMClass=brave-watermark.ws__-Default
