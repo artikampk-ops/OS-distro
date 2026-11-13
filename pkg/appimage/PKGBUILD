@@ -40,8 +40,10 @@ package() {
     fi
   done
 
+  # AppRun looks for its own folder using its first argument, and finds
+  # nothing when that argument is an option, so the folder is given to it.
   sed \
-    -e "s|^Exec=[^ ]*|Exec=/opt/$pkgname/AppRun|" \
+    -e "s|^Exec=[^ ]*|Exec=env APPDIR=/opt/$pkgname /opt/$pkgname/AppRun|" \
     -e "s|^Icon=.*|Icon=$pkgname|" \
     -e "s|^Name=.*|Name=$APP_TITLE|" \
     -e '/^TryExec=/d' \

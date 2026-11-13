@@ -1,0 +1,4 @@
+# Browsers keep saved passwords in their own store, so nobody is asked to set
+# up a wallet the first time one starts.
+[Wallet]
+Enabled=false
